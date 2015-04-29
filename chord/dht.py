@@ -10,7 +10,7 @@ G_DHT = None
 
 def setup(port, remote):
 	global G_DHT
-	myaddr = Address("127.0.0.1",port)
+	myaddr = Address("0.0.0.0",port)
 	if remote is None or remote == 'None':
 		remote = None
 	else:
