@@ -198,7 +198,7 @@ class Local(object):
 		# be redundance between finger_[0] and successors_[0], but
 		# it doesn't harm
 		for remote in [self.finger_[0]] + self.successors_:
-			print remote
+			#print remote
 			if remote.ping():
 				self.finger_[0] = remote
 				return remote
