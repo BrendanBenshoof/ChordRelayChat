@@ -198,11 +198,11 @@ class Local(object):
 		# be redundance between finger_[0] and successors_[0], but
 		# it doesn't harm
 		for remote in [self.finger_[0]] + self.successors_:
-			#print remote
+			#print remote.address_
 			if remote.ping():
 				self.finger_[0] = remote
 				return remote
-		#print("No successor available, aborting")
+		print("No successor available, aborting")
 		self.shutdown_ = True
 		sys.exit(-1)
 

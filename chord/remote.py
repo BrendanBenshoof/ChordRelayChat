@@ -11,12 +11,14 @@ def requires_connection(func):
 	""" initiates and cleans up connections with remote server """
 	def inner(self, *args, **kwargs):
 		self.mutex_.acquire()
-
+		
 		self.open_connection()
+		
 		ret = func(self, *args, **kwargs)
+		
 		self.close_connection()
 		self.mutex_.release()
-
+		
 		return ret
 	return inner
 
@@ -24,6 +26,7 @@ def requires_connection(func):
 class Remote(object):
 	def __init__(self, remote_address):
 		self.address_ = remote_address
+		self.public_addr = remote_address
 		self.mutex_ = threading.Lock()
 
 	def open_connection(self):
@@ -58,6 +61,7 @@ class Remote(object):
 			s.close()
 			return True
 		except socket.error:
+			print "ping failed", self.address_
 			return False
 
 	@requires_connection
@@ -97,8 +101,9 @@ class Remote(object):
 	@requires_connection
 	def find_successor(self, id):
 		self.send('find_successor %s' % id)
-
+		#print "fired away"
 		response = json.loads(self.recv())
+		#print "got response"
 		return Remote(Address(response[0], response[1]))
 
 	@requires_connection

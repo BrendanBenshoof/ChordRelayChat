@@ -16,7 +16,7 @@ def setup(port, remote):
 	else:
 		data = remote.split(":")
 		remote = Address(data[0],int(data[1]))
-	print remote
+
 	G_DHT = DHT(myaddr, remote)
 
 def getDHT():
@@ -77,7 +77,7 @@ class DHT(object):
 			key = data['key']
 			time = data['time']
 			# we have the key
-			print(("polling",key,time))
+			#print(("polling",key,time))
 			return json.dumps({'status':'ok', 'data':self.pollChan(key,time)})
 		except Exception:
 			# key not present
@@ -145,7 +145,6 @@ class DHT(object):
 
 
 	def post(self, key, value):
-		print("psting")
 		# not in our range
 		suc = self.local_.find_successor(hash(key))
 		if self.local_.id() == suc.id():
@@ -165,7 +164,7 @@ class DHT(object):
 
 
 	def poll(self, key, time):
-		print("polling")
+		#print("polling")
 		suc = self.local_.find_successor(hash(key))
 		if self.local_.id() == suc.id():
 			return self.pollChan(key,time)
@@ -245,30 +244,3 @@ class ChanWorker(Thread):
 
 	def post(self, line):
 		self.DHT.post(self.chanid,line)
-
-if __name__ == "__main__":
-	import sys
-	chan = "null"
-	dht = None
-	if len(sys.argv) == 3:
-		dht = DHT(Address("127.0.0.1", sys.argv[1]))
-		chan = sys.argv[2]
-	else:
-		dht = DHT(Address("127.0.0.1", sys.argv[1]), Address("127.0.0.1", sys.argv[2]))
-	x = ""
-	last_time = 0
-	while x != '/quit':
-		x = raw_input("?")
-		if(len(x)>0):
-			print((dht.post(chan,x)))
-		out = dht.poll(chan,last_time)
-
-		if out:
-			last_time = max([x[0] for x in out])
-			for l in out:
-				print(l)
-		else:
-			print("got no messages")
-	
-	dht.shutdown()
-
