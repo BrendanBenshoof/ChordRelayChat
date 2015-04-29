@@ -1,4 +1,26 @@
-A python written IRC Server Project.
+This project was kludged together from these projects:
 
-Main Developers:
-	SilverFix
+- https://github.com/silverfix/python-ircd
+- https://github.com/gaston770/python-chord
+
+current features:
+
+- local irc server as user interface
+- channels are hosted by DHT nodes
+
+needs python 2.7 and twisted
+
+
+current usage:
+
+
+'''
+python main.py -D 8000 -P 6667 -remote None
+'''
+sets up a server with port 8000 as the dht port and 6667 as the local irc server
+
+'''
+python main.py -D 8000 -P 6667 -remote otherip:port
+'''
+
+creates a server and connects it to otherip:port
