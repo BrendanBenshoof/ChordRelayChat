@@ -12,6 +12,11 @@ from remote import Remote
 from settings import *
 from network import *
 
+def quick_lazy_ip():
+	import urllib2
+	my_ip = urllib2.urlopen('http://ip.42.pl/raw').read()
+	return my_ip
+
 def repeat_and_sleep(sleep_time):
 	def decorator(func):
 		def inner(self, *args, **kwargs):
@@ -58,7 +63,8 @@ class Daemon(threading.Thread):
 # class representing a local peer
 class Local(object):
 	def __init__(self, local_address, remote_address = None):
-		self.address_ = local_address
+		self.address_ = Address(quick_lazy_ip(),local_address.port)
+		self.local_addr =  local_address
 		print("self id = %s" % self.id())
 		self.shutdown_ = False
 		# list of successors
@@ -104,16 +110,19 @@ class Local(object):
 
 	def join(self, remote_address = None):
 		# initially just set successor
+		print "joining"
 		self.finger_ = [None for x in range(LOGSIZE)]
 
 		self.predecessor_ = None
 
 		if remote_address:
+			print "poking", remote_address
 			remote = Remote(remote_address)
+			print "fingering"
 			self.finger_[0] = remote.find_successor(self.id())
 		else:
 			self.finger_[0] = self
-
+		print "joined"
 		self.log("joined")
 
 	@repeat_and_sleep(STABILIZE_INT)
@@ -189,10 +198,11 @@ class Local(object):
 		# be redundance between finger_[0] and successors_[0], but
 		# it doesn't harm
 		for remote in [self.finger_[0]] + self.successors_:
+			print remote
 			if remote.ping():
 				self.finger_[0] = remote
 				return remote
-		print("No successor available, aborting")
+		#print("No successor available, aborting")
 		self.shutdown_ = True
 		sys.exit(-1)
 
@@ -235,7 +245,7 @@ class Local(object):
 		# should have a threadpool here :/
 		# listen to incomming connections
 		self.socket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.socket_.bind((self.address_.ip, int(self.address_.port)))
+		self.socket_.bind((self.local_addr.ip, int(self.local_addr.port)))
 		self.socket_.listen(10)
 
 		while 1:
