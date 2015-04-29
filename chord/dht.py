@@ -112,7 +112,7 @@ class DHT(object):
 			output = list(filter(tmp,lambda x: x[0] > timestamp))
 			return output
 		else:
-			return None
+			return []
 
 
 	def postChan(self,key,msg):

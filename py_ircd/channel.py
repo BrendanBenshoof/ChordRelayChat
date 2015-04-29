@@ -9,6 +9,7 @@ class ClientInChannel(object):
         self.client = client
         self.operator = False
         self.voice = False
+       
     
     def __str__(self):
         prefix = (self.operator and '@') or (self.voice and '%') or ''
@@ -20,6 +21,7 @@ class Channel(object):
     channels = {} # { chan_name : channel_obj }
     
     def __init__(self, name):
+        self.local_lines = set([])
         self.name = name
         self.topic = 'Null'
         self.modes = set()
@@ -44,6 +46,7 @@ class Channel(object):
         return ' '.join(nicklist)
     
     def relay(self, sender, line):
+        self.local_lines.add(line)
         for client in self.clients:
             if not client == sender:
                 client.send(line)
@@ -51,7 +54,9 @@ class Channel(object):
 
 
     def chanpost(self,line):
-        for client in self.clients:
-            client.send(line.encode('utf-8'))
+        if line not in self.local_lines:
+            print "chanpost", line
+            for client in self.clients:
+                client.send(line.encode('utf-8'))
 
             
